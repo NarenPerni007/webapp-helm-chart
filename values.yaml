@@ -1,0 +1,156 @@
+# Default values for webapp.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Number of pod replicas. Ignored when autoscaling.enabled is true
+# (the HorizontalPodAutoscaler takes over replica management).
+replicaCount: 2
+
+image:
+  repository: ghcr.io/example-org/webapp
+  pullPolicy: IfNotPresent
+  # Overrides the image tag. Defaults to the chart appVersion when empty.
+  tag: ""
+
+imagePullSecrets: []
+# Example:
+# imagePullSecrets:
+#   - name: regcred
+
+nameOverride: ""
+fullnameOverride: ""
+
+# Port the container listens on inside the pod
+containerPort: 8080
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+# Example:
+# podAnnotations:
+#   prometheus.io/scrape: "true"
+#   prometheus.io/port: "8080"
+
+# Security context applied at the pod level
+podSecurityContext:
+  fsGroup: 2000
+
+# Security context applied at the container level.
+# Runs as a non-root user with a read-only root filesystem.
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+  # Target port on the pod; references the named container port
+  targetPort: http
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # Example:
+    # kubernetes.io/ingress.class: nginx
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  # Example:
+  # tls:
+  #   - secretName: chart-example-tls
+  #     hosts:
+  #       - chart-example.local
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 70
+  # targetMemoryUtilizationPercentage: 80
+
+podDisruptionBudget:
+  enabled: false
+  # Set exactly one of minAvailable / maxUnavailable
+  minAvailable: 1
+  # maxUnavailable: 1
+
+# Non-sensitive application configuration, mounted as environment variables
+configMap:
+  data:
+    APP_ENV: "production"
+    LOG_LEVEL: "info"
+    FEATURE_FLAGS: "metrics,tracing"
+
+# Extra environment variables for the container
+env:
+  - name: PORT
+    value: "8080"
+
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+nodeSelector: {}
+# Example:
+# nodeSelector:
+#   disktype: ssd
+
+tolerations: []
+# Example:
+# tolerations:
+#   - key: "dedicated"
+#     operator: "Equal"
+#     value: "webapp"
+#     effect: "NoSchedule"
+
+affinity: {}
+# Example: prefer spreading pods across nodes
+# affinity:
+#   podAntiAffinity:
+#     preferredDuringSchedulingIgnoredDuringExecution:
+#       - weight: 100
+#         podAffinityTerm:
+#           labelSelector:
+#             matchExpressions:
+#               - key: app.kubernetes.io/name
+#                 operator: In
+#                 values:
+#                   - webapp
+#           topologyKey: kubernetes.io/hostname
