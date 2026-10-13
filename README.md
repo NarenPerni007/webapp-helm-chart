@@ -18,7 +18,7 @@ Production-grade Helm chart for deploying a containerized web application on Kub
 ## Prerequisites
 
 - Helm 3.x
-- `kubectl` configured against a Kubernetes cluster (1.23+ recommended)
+- `kubectl` configured against a Kubernetes cluster (1.30+ recommended)
 - An ingress controller (e.g. ingress-nginx) if you enable `ingress`
 
 ## Installing
