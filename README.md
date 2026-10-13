@@ -135,4 +135,4 @@ This chart ships with production-safe defaults and opt-in guards:
 
 ## CI
 
-Pull requests run `helm lint` and `helm template` (default values plus a full-feature render) via GitHub Actions — see `.github/workflows/lint.yml`.
+Pull requests run `helm lint` and `helm template` (default values plus a full-feature render) via GitHub Actions - see `.github/workflows/lint.yml`.

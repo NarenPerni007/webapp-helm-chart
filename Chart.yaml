@@ -3,7 +3,7 @@ name: webapp
 description: Production-grade Helm chart for a containerized web application
 type: application
 
-# Chart version — bump on every chart change
+# Chart version - bump on every chart change
 version: 1.0.0
 
 # Application version deployed by default
