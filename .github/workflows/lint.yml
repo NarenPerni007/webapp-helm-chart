@@ -33,4 +33,5 @@ jobs:
             --set ingress.enabled=true \
             --set autoscaling.enabled=true \
             --set podDisruptionBudget.enabled=true \
+            --set networkPolicy.enabled=true \
             --debug > /dev/null

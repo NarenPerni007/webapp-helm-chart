@@ -12,6 +12,7 @@ Production-grade Helm chart for deploying a containerized web application on Kub
 - **ConfigMap** for non-sensitive application configuration, injected as environment variables
 - **Liveness and readiness probes** for reliable traffic routing and self-healing
 - **Resource requests and limits** on every container
+- **NetworkPolicy** (optional) restricting ingress to labelled namespaces and egress to DNS plus what you list
 - **Hardened security context**: non-root user, read-only root filesystem, dropped capabilities
 - Scheduling controls: `nodeSelector`, `tolerations`, and `affinity` (with commented examples)
 
@@ -67,6 +68,9 @@ The following table lists the most commonly customized values. See `values.yaml`
 | `autoscaling.enabled` | Enable Horizontal Pod Autoscaler | `false` |
 | `autoscaling.minReplicas` / `maxReplicas` | HPA replica bounds | `2` / `6` |
 | `autoscaling.targetCPUUtilizationPercentage` | Target CPU for scaling | `70` |
+| `networkPolicy.enabled` | Enable NetworkPolicy | `false` |
+| `networkPolicy.ingress.fromNamespaceLabel` | Namespace label allowed to reach the app | `webapp-access` |
+| `networkPolicy.egress.extra` | Extra egress rules beyond DNS | `[]` |
 | `podDisruptionBudget.enabled` | Enable PodDisruptionBudget | `false` |
 | `podDisruptionBudget.minAvailable` | Minimum pods available during disruptions | `1` |
 | `configMap.data` | Key/value config injected as env vars | `APP_ENV`, `LOG_LEVEL`, … |
@@ -130,6 +134,7 @@ This chart ships with production-safe defaults and opt-in guards:
 - **PodDisruptionBudget**: optional `minAvailable` guard keeps capacity during node drains and cluster upgrades.
 - **HPA**: optional CPU/memory-based autoscaling; `replicaCount` is automatically ignored when the HPA manages replicas.
 - **Resource limits**: requests and limits are set on the container, preventing noisy-neighbor issues and enabling the scheduler to bin-pack correctly.
+- **NetworkPolicy**: opt-in, off by default so enabling the chart somewhere new does not silently cut traffic. When on, ingress is limited to namespaces carrying the `webapp-access` label (set it on the ingress controller namespace) and egress is DNS plus whatever you add under `networkPolicy.egress.extra`. It needs a CNI that enforces NetworkPolicy to do anything.
 - **Non-root execution**: the container runs as UID 1000 with `runAsNonRoot`, a read-only root filesystem, `allowPrivilegeEscalation: false`, and all Linux capabilities dropped.
 - **Rolling updates**: the default `RollingUpdate` strategy (with readiness gates) keeps the app serving traffic during deploys.
 

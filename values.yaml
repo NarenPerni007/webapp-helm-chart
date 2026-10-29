@@ -97,6 +97,34 @@ podDisruptionBudget:
   minAvailable: 1
   # maxUnavailable: 1
 
+# NetworkPolicy restricting pod traffic. Disabled by default: turning it on
+# in a cluster (or namespace) where nothing selects these pods today can cut
+# off traffic that was working, so it is an explicit opt-in. Note it only
+# does anything if the CNI enforces NetworkPolicy (Calico, Cilium, etc).
+networkPolicy:
+  enabled: false
+  ingress:
+    # Namespaces with this label may reach the app on its container port.
+    fromNamespaceLabel: webapp-access
+    # Full override of the ingress "from" list. When set, it replaces the
+    # namespace label rule above.
+    # from:
+    #   - podSelector:
+    #       matchLabels:
+    #         app: my-client
+    from: []
+  egress:
+    # DNS egress is always included. Add anything else the app calls here.
+    # extra:
+    #   - to:
+    #       - podSelector:
+    #           matchLabels:
+    #             app: postgres
+    #     ports:
+    #       - protocol: TCP
+    #         port: 5432
+    extra: []
+
 # Non-sensitive application configuration, mounted as environment variables
 configMap:
   data:
